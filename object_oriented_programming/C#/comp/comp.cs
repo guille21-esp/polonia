@@ -17,11 +17,24 @@ public class Computer
         _counter ++;
     }
     
-    public Computer(){
+    public Computer(string biosName, string name){  //constructor without ip
+        _BiosName= biosName;
+        _Name=name;
+    }
+    
+    public Computer(){  // default constructor
         _counter++;
     }
     
-    public static int getcompsNum(){
+    public void StartComputer(string ip){  // computer turns on, ip visible
+        _IpAddress=ip;
+    }
+    
+    public void ShutDownComputer(){  // computer turns off, ip not visible
+        _IpAddress= null;
+    }
+    
+    public static int getcompsNum(){ // shows number of computers
         return _counter;
     }
     
@@ -48,10 +61,15 @@ public class Program
         Computer[]net= new Computer[4];
         
         for(int i=0; i< net.Length; i++){
-            net[i]= new Computer(randomIP(), "bios_" + i.ToString(), "comp_"+i.ToString() );
+            net[i]= new Computer( "bios_" + i.ToString(), "comp_"+i.ToString() );
+            net[i].StartComputer(randomIP());
         }
         
-        Console.WriteLine(Computer.getcompsNum());
+        Console.WriteLine(net[0].IpAddress);
+
+        net[0].ShutDownComputer();
+        
+        Console.WriteLine(net[0].IpAddress);
 }
     
     static string randomIP()
