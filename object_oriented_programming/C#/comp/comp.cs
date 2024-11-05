@@ -65,12 +65,20 @@ public class Program
             net[i].StartComputer(randomIP());
         }
         
-        Console.WriteLine(net[0].IpAddress);
-
-        net[0].ShutDownComputer();
+        Console.WriteLine("available computers: ");
         
         Console.WriteLine(net[0].IpAddress);
-}
+        Console.WriteLine(net[1].IpAddress);
+        Console.WriteLine(net[2].IpAddress);
+        Console.WriteLine(net[3].IpAddress);
+        
+        Console.WriteLine("introduce ip adress to ping: ");
+        
+        string pinged_ip = Console.ReadLine();
+        
+        pinging(pinged_ip, net);
+        
+    }
     
     static string randomIP()
     {
@@ -91,5 +99,18 @@ public class Program
 
         return ip; 
     }
+    
+    static void pinging(string ip, Computer[]net){
+        bool encontrado=false;
+        for(int i=0; i< 4; i++){
+            if(ip == net[i].IpAddress){
+                encontrado= true;
+                Console.WriteLine("pinging...");
+                break;
+            }
+        }
+        if(encontrado == false){
+            Console.WriteLine("connection lost");
+        }
+    }
 }
-
