@@ -54,15 +54,24 @@ public class Program
         Console.WriteLine(Computer.getcompsNum());
 }
     
-    static string randomIP(){
-        Random rnd= new Random();
+    static string randomIP()
+    {
+        // Static variable to track generated IPs across function calls
+        HashSet<string> generatedIPs = new HashSet<string>();
+        Random rnd = new Random();
+        string ip;
 
-        int a= rnd.Next(0,255);
-        int b= rnd.Next(0,255);
-        int c= rnd.Next(0,255);
-        int d= rnd.Next(0,255);
-        
-        return $"{a}.{b}.{c}.{d}";
+        do
+        {
+            int a = rnd.Next(0, 256);
+            int b = rnd.Next(0, 256);
+            int c = rnd.Next(0, 256);
+            int d = rnd.Next(0, 256);
+
+            ip = $"{a}.{b}.{c}.{d}";
+        } while (!generatedIPs.Add(ip)); 
+
+        return ip; 
     }
 }
 
