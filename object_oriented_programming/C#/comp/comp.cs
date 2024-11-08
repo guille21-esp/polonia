@@ -26,7 +26,7 @@ public class Computer
         _counter++;
     }
     
-    public void StartComputer(string ip){  // computer turns on, ip visible
+    public virtual void StartComputer(string ip){  // computer turns on, ip visible
         _IpAddress=ip;
     }
     
@@ -54,14 +54,45 @@ public class Computer
     }
 }
 
+public class Server : Computer{
+    
+    private string _type;
+    
+    public Server(string ipAddress, string biosName, string name, string type) : base(ipAddress, biosName, name){
+        this.Type = type;
+    }
+    
+    public Server(){
+    }
+    
+    public string Type{
+        get { return _type;}
+        set { _type = value; }
+    }
+    
+    public override void StartComputer(string ip){
+        IpAddress= ip+ "10";
+    }
+    
+    public void shutDownServer(string ip){
+        IpAddress= null;
+    }
+}
+
 public class Program
 {
     private static Computer[]net= new Computer[4];
     public static void Main()
     {
+        Server server= new Server();
+        server.BiosName= "DHCP";
+        server.IpAddress= "1.1.1.1";
+        server.Name= "nameserver";
+        server.Type= "primary";
         
+        net[0] = server;
         
-        for(int i=0; i< net.Length; i++){
+        for(int i=1; i< net.Length; i++){
             net[i]= new Computer( "bios_" + i.ToString(), "comp_"+i.ToString() );
             net[i].StartComputer(randomIP());
         }
@@ -73,7 +104,10 @@ public class Program
         Console.WriteLine(net[2].IpAddress);
         Console.WriteLine(net[3].IpAddress);
         
+        
+        
         Menu();
+        
         
     }
     
@@ -182,7 +216,13 @@ public class Program
     static void DisplayComputers(){
         Console.WriteLine("Computers in net: ");
         foreach(var computer in net){
-            Console.WriteLine($"Name: {computer.Name}, BIOS: {computer.BiosName}, IP: {(computer.IpAddress ?? "Offline")}");
+            Type t = typeof(Computer);
+            if(t == typeof(Server)){
+                Console.WriteLine($"Name: {computer.Name}, BIOS: {computer.BiosName}, Type: {computer.Type}, IP: {(computer.IpAddress ?? "Offline")}");
+            }else{
+                Console.WriteLine($"Name: {computer.Name}, BIOS: {computer.BiosName}, IP: {(computer.IpAddress ?? "Offline")}");
+            }
+            
         }
     }
     
