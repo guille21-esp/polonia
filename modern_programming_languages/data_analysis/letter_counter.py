@@ -65,6 +65,5 @@ for char in text_es:
             letras[26]=letras[26]+1
            
 for i in range(len(letras)):
-    print(letters[i+3] + ": ")
-    print(letras[i])
+    print(letters[i+3] + ": " + str(letras[i]))
         
