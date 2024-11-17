@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 public class Computer
 {
@@ -59,7 +60,7 @@ public class Server : Computer{
     private string _type;
     
     public Server(string ipAddress, string biosName, string name, string type) : base(ipAddress, biosName, name){
-        this.Type = type;
+        this.Type = type;                   
     }
     
     public Server(){
@@ -88,14 +89,14 @@ public class Server : Computer{
             Console.WriteLine("invalid option");
         }
     }
-}
+}         //end of class server
 
 public class Program
 {
-    private static Computer[]net= new Computer[4];
+    private static Computer[]net= new Computer[4];      //creating net array of computers
     public static void Main()
     {
-        Server server= new Server();
+        Server server= new Server();     //creating server
         server.BiosName= "DHCP";
         server.IpAddress= "1.1.1.1";
         server.Name= "server_one";
@@ -104,7 +105,7 @@ public class Program
         net[0] = server;
         
         for(int i=1; i< net.Length; i++){
-            net[i]= new Computer( "bios_" + i.ToString(), "computer_"+i.ToString() );
+            net[i]= new Computer("bios_" + i.ToString(), "computer_"+i.ToString());    //creating computers
             net[i].StartComputer(randomIP());
         }
         
@@ -115,12 +116,11 @@ public class Program
         Console.WriteLine(net[2].IpAddress);
         Console.WriteLine(net[3].IpAddress);
         
-        
-        
-        Menu();
-        
-        
-    }
+        //Menu();
+        Console.WriteLine("what computer do you want to ping?(write ip)");
+        string ip_pinged= Console.ReadLine();
+        pinging(ip_pinged, net);
+    }                    //end of main
     
     static string randomIP()
     {
@@ -140,9 +140,9 @@ public class Program
         } while (!generatedIPs.Add(ip)); 
 
         return ip; 
-    }
+    }             //end of class randomIP
 
-    static void Menu(){
+    static void Menu(){               
         
         bool quit= false;
         
@@ -241,7 +241,7 @@ public class Program
                 } 
             }
         }
-    }
+    }                          //end of class menu
     
     static void DisplayComputers(Computer[]net){
         Console.WriteLine("Computers in net: ");
@@ -257,23 +257,38 @@ public class Program
             }else{
                 Console.WriteLine();
             }
-
-
-            
         }
-    }
+    }     //end of class DisplayComputers
     
     static void pinging(string ip, Computer[]net){
         bool encontrado=false;
+        
+        Random ping_times = new Random();
+
+        int cont_ping=0;
+        
         for(int i=0; i< 4; i++){
             if(ip == net[i].IpAddress){
                 encontrado= true;
-                Console.WriteLine("pinging...");
+                Console.WriteLine("pinging will start in 3 seconds, write q when you want to stop");
+                Thread.Sleep(3000);
+                Console.WriteLine($"PING {net[i].IpAddress} (waw02s14-in-x0e.1e100.net (2a00:1450:401b:805::200e)) 56 data bytes");
+                string quit= "";
+                while(quit != "q"){
+                    int ttl = ping_times.Next(100,120);
+                    double time = Math.Round(ping_times.NextDouble()*(80-10)+10,2);
+                    Console.WriteLine($"64 bytes from waw02s14-in-x0e.1e100.net (2a00:1450:401b:805::200e): icmp_seq={cont_ping} ttl={ttl} time={time} ms");
+                    cont_ping++;
+                    Thread.Sleep(1000);
+                    if(Console.KeyAvailable){
+                        quit= Console.ReadLine();
+                    }
+                }
                 break;
             }
         }
         if(encontrado == false){
             Console.WriteLine("connection lost");
         }
-    }
-}
+    }          //end of class pinging
+}                   //end of program
