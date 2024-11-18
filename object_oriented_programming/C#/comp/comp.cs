@@ -72,7 +72,7 @@ public class Server : Computer{
     }
     
     public override void StartComputer(string ip){
-        IpAddress= ip+ "10";
+        IpAddress= ip;
     }
     
     public override void ShutDownComputer(string ip){
@@ -93,12 +93,12 @@ public class Server : Computer{
 
 public class Program
 {
-    private static Computer[]net= new Computer[4];      //creating net array of computers
+    private static Computer[]net= new Computer[10];      //creating net array of computers
     public static void Main()
     {
         Server server= new Server();     //creating server
         server.BiosName= "DHCP";
-        server.IpAddress= "1.1.1.1";
+        server.IpAddress= "255.255.255.255";
         server.Name= "server_one";
         server.Type= "net_server";
         
@@ -109,17 +109,7 @@ public class Program
             net[i].StartComputer(randomIP());
         }
         
-        Console.WriteLine("available computers: ");
-        
-        Console.WriteLine(net[0].IpAddress);
-        Console.WriteLine(net[1].IpAddress);
-        Console.WriteLine(net[2].IpAddress);
-        Console.WriteLine(net[3].IpAddress);
-        
-        //Menu();
-        Console.WriteLine("what computer do you want to ping?(write ip)");
-        string ip_pinged= Console.ReadLine();
-        pinging(ip_pinged, net);
+        Menu();
     }                    //end of main
     
     static string randomIP()
@@ -147,30 +137,60 @@ public class Program
         bool quit= false;
         
         while(!quit){
-            Console.WriteLine("Menu: ");
+            Console.WriteLine(" ");
+            Console.WriteLine("Available devices: ");
+            for(int i=0; i<net.Length; i++){
+                Type t= net[i].GetType();
+                Console.WriteLine($"{t}  {net[i].IpAddress}");
+            }
+            Console.WriteLine(" ");
+            Console.WriteLine("*---------Menu-----------*");
             Console.WriteLine("1. Start server");
             Console.WriteLine("2. Start computers");
-            Console.WriteLine("3. Display computers");
-            Console.WriteLine("4. Shut down computers");
+            Console.WriteLine("3. Display Devices");
+            Console.WriteLine("4. Shut down computer");
             Console.WriteLine("5. Shut down all computers");
             Console.WriteLine("6. See the log");
             Console.WriteLine("7. Shut down server");
-            Console.WriteLine("8. Quit");
-        
+            Console.WriteLine("8. Ping computer");
+            Console.WriteLine("9. Quit");
+            Console.WriteLine("*------------------------*");
             Console.WriteLine("Choose option: ");
         
             if(int.TryParse(Console.ReadLine(), out int option)){
         
                 switch(option){
                     case 1:
-                        Console.WriteLine("not implemented yet");
+                        Console.WriteLine("Not implemented yet");
                         break;
-                    case 2: 
-                        Console.WriteLine("how many computers do you want to switch on:");
+                    case 2:
+                        int cont_comp=0;
+                        for(int i=0; i<net.Length; i++){
+                            if(net[i] is Server){
+                                continue;
+                            }else{
+                                cont_comp++;
+                            }
+                        }
+                        Console.WriteLine("How many computers do you want to switch on:");
                         if(int.TryParse(Console.ReadLine(), out int num_computers_turned_on)){
-                            for(int i=0; i<num_computers_turned_on; i++){
-                                net[i].StartComputer(randomIP());
-                                Console.WriteLine($"{net[i].Name} turned on with IP: {net[i].IpAddress}");
+                            if(num_computers_turned_on <= cont_comp){
+                                int cont_turned_on=0;
+                                for(int i=0; i<net.Length && cont_turned_on < num_computers_turned_on; i++){
+                                    if(net[i] is Server){
+                                        continue;
+                                    }
+                                
+                                    if(net[i].IpAddress == null){
+                                        net[i].StartComputer(randomIP());
+                                        Console.WriteLine($"{net[i].Name} turned on with IP: {net[i].IpAddress}");
+                                        cont_turned_on++;
+                                    }else{
+                                        Console.WriteLine($"{net[i].Name} is already turned on");
+                                    }
+                                }
+                            }else{
+                                Console.WriteLine($"Only {cont_comp} computers in the net");
                             }
                         }
                         break;
@@ -182,13 +202,19 @@ public class Program
                         string ip_to_shut_down = Console.ReadLine();
 
                         bool computerFound = false;
+                        
                         foreach (var computer in net){
-                            if (computer.IpAddress == ip_to_shut_down)
-                            {
-                                computer.ShutDownComputer(ip_to_shut_down); 
-                                Console.WriteLine($"Computer {computer.Name} with IP {ip_to_shut_down} has been shut down.");
-                                computerFound = true;
-                                break;
+                            if (computer.IpAddress == ip_to_shut_down){
+                                if(computer is Server){
+                                    Console.WriteLine($"Device {computer.Name} is not a computer, couldn't turn off");
+                                    computerFound = true;
+                                    break;
+                                }else{
+                                    computer.ShutDownComputer(ip_to_shut_down); 
+                                    Console.WriteLine($"Computer {computer.Name} with IP {ip_to_shut_down} has been shut down.");
+                                    computerFound = true;
+                                    break;
+                                }
                             }
                         }
 
@@ -198,19 +224,21 @@ public class Program
                         break;
                     case 5:
                         foreach(var computer in net){
-                            if(computer.IpAddress != null){
-                                computer.ShutDownComputer(computer.IpAddress);
-                                Console.WriteLine($"computer {computer.Name} has been shut donw");
+                            if(computer is Server){
+                            }else{
+                                if(computer.IpAddress != null){
+                                    computer.ShutDownComputer(computer.IpAddress);
+                                    Console.WriteLine($"Computer {computer.Name} has been shut donw");
+                                }
+                                else{
+                                    Console.WriteLine($"Computer {computer.Name} is already shut down");
+                                }
                             }
-                            else{
-                                Console.WriteLine($"computer {computer.Name} is already shut down");
-                            }
-                            
                         }
-                        Console.WriteLine("all computers are shut down");
+                        Console.WriteLine("All computers are shut down");
                         break;
                     case 6:
-                        Console.WriteLine("not implemented yet");
+                        Console.WriteLine("Not implemented yet");
                         break;
                     case 7:
                         Console.WriteLine("Enter the IP address of the server you want to shut down:");
@@ -226,15 +254,16 @@ public class Program
                                     serverFound = true;
                                     break;
                                 }
-                            }else{
-                                Console.WriteLine("server not found");
                             }
                         }
-                        
-                        
-                        
+                        Console.WriteLine("Couldn't find server with ip provided");
                         break;
-                    case 8:
+                    case 8: 
+                        Console.WriteLine("Write IP of computer you want to ping: ");
+                        string ip_pinged= Console.ReadLine();
+                        pinging(ip_pinged, net);
+                        break;
+                    case 9:
                         quit=true;
                         break;
                         
@@ -244,7 +273,7 @@ public class Program
     }                          //end of class menu
     
     static void DisplayComputers(Computer[]net){
-        Console.WriteLine("Computers in net: ");
+        Console.WriteLine("Devices in net: ");
         foreach(var comp in net){
             Type type1= comp.GetType();
             string stringType = type1.ToString();
@@ -288,7 +317,7 @@ public class Program
             }
         }
         if(encontrado == false){
-            Console.WriteLine("connection lost");
+            Console.WriteLine("connection couldn't be established, try again");
         }
     }          //end of class pinging
-}                   //end of program
+}
