@@ -2,36 +2,47 @@ using System;
 using System.Collections.Generic;
 
 namespace libcomp{
-    public class Computer
+
+    public abstract class Device{
+        protected string _Name;
+
+        public Device(string name){
+            _Name=name;
+        }
+        public Device(){
+            
+        }
+
+        public abstract void StartComputer(string ip);
+        public abstract void ShutDownComputer(string ip);
+    }
+    public class Computer : Device
 {
     private string _IpAddress;
     private string _BiosName; 
-    private string _Name; 
     private static int _counter=0;
 
-    public Computer(string ipAddress, string biosName, string name)//: base(name)
+    public Computer(string ipAddress, string biosName, string name): base(name)
     {
         _IpAddress = ipAddress;
         _BiosName = biosName;
-        _Name = name;
         
         _counter ++;
     }
     
-    public Computer(string biosName, string name){  //constructor without ip
+    public Computer(string biosName, string name): base(name){  //constructor without ip
         _BiosName= biosName;
-        _Name=name;
     }
     
-    public Computer(){  // default constructor
+    public Computer(): base(){  // default constructor   commented because error with abstract class
         _counter++;
     }
     
-    public virtual void StartComputer(string ip){  // computer turns on, ip visible
+    public override void StartComputer(string ip){  // computer turns on, ip visible
         _IpAddress=ip;
     }
     
-    public virtual void ShutDownComputer(string ip){  // computer turns off, ip not visible
+    public override void ShutDownComputer(string ip){  // computer turns off, ip not visible
         _IpAddress= null;
     }
     
