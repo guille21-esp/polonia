@@ -1,101 +1,18 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.IO;
 
-public class Computer
-{
-    private string _IpAddress;
-    private string _BiosName; 
-    private string _Name; 
-    private static int _counter=0;
-
-    public Computer(string ipAddress, string biosName, string name)
-    {
-        _IpAddress = ipAddress;
-        _BiosName = biosName;
-        _Name = name;
-        
-        _counter ++;
-    }
-    
-    public Computer(string biosName, string name){  //constructor without ip
-        _BiosName= biosName;
-        _Name=name;
-    }
-    
-    public Computer(){  // default constructor
-        _counter++;
-    }
-    
-    public virtual void StartComputer(string ip){  // computer turns on, ip visible
-        _IpAddress=ip;
-    }
-    
-    public virtual void ShutDownComputer(string ip){  // computer turns off, ip not visible
-        _IpAddress= null;
-    }
-    
-    public static int getcompsNum(){ // shows number of computers
-        return _counter;
-    }
-    
-    public string IpAddress{
-        get {return this._IpAddress;}
-        set {this._IpAddress= value;}
-    }
-    
-    public string BiosName{
-        get {return this._BiosName;}
-        set {this._BiosName= value;}
-    }
-    
-    public string Name{
-        get {return this._Name;}
-        set {this._Name= value;}
-    }
-}          //end of class computer
-
-public class Server : Computer{
-    
-    private string _type;
-    
-    public Server(string ipAddress, string biosName, string name, string type) : base(ipAddress, biosName, name){
-        this.Type = type;                   
-    }
-    
-    public Server(){
-    }
-    
-    public string Type{
-        get { return _type;}
-        set { _type = value; }
-    }
-    
-    public override void StartComputer(string ip){
-        IpAddress= ip;
-    }
-    
-    public override void ShutDownComputer(string ip){
-        Console.WriteLine("Are you sure you want to shut down the server? (y/n)");
-        string sure= Console.ReadLine();
-        if(sure == "y" || sure == "n"){
-            if(sure =="y"){
-                IpAddress=null;
-                Console.WriteLine("Server shut off");
-            }else{
-                Console.WriteLine("Server still on");
-            }
-        }else{
-            Console.WriteLine("invalid option");
-        }
-    }
-}         //end of class server
+using libcomp;
 
 public class Program
 {
     private static Computer[]net= new Computer[10];      //creating net array of computers
+    static StreamWriter log;
+
     public static void Main()
     {
+        log= File.CreateText("log.txt");
         Server server= new Server();     //creating server
         server.BiosName= "DHCP";
         server.IpAddress= "255.255.255.255";
@@ -108,8 +25,12 @@ public class Program
             net[i]= new Computer("bios_" + i.ToString(), "computer_"+i.ToString());    //creating computers
             net[i].StartComputer(randomIP());
         }
+
+        
+        
         
         Menu();
+        log.Close();
     }                    //end of main
     
     static string randomIP()
@@ -135,6 +56,8 @@ public class Program
     static void Menu(){               
         
         bool quit= false;
+
+        
         
         while(!quit){
             Console.WriteLine(" ");
@@ -162,6 +85,7 @@ public class Program
                 switch(option){
                     case 1:
                         Console.WriteLine("Not implemented yet");
+                        log.WriteLine("server shut down");  //{DateTime.Now}
                         break;
                     case 2:
                         int cont_comp=0;
@@ -228,7 +152,7 @@ public class Program
                             }else{
                                 if(computer.IpAddress != null){
                                     computer.ShutDownComputer(computer.IpAddress);
-                                    Console.WriteLine($"Computer {computer.Name} has been shut donw");
+                                    Console.WriteLine($"Computer {computer.Name} has been shut down");
                                 }
                                 else{
                                     Console.WriteLine($"Computer {computer.Name} is already shut down");
@@ -238,7 +162,7 @@ public class Program
                         Console.WriteLine("All computers are shut down");
                         break;
                     case 6:
-                        Console.WriteLine("Not implemented yet");
+                        seeLog();
                         break;
                     case 7:
                         Console.WriteLine("Enter the IP address of the server you want to shut down:");
@@ -252,11 +176,15 @@ public class Program
                                     server.ShutDownComputer(ipp_to_shut_down); 
                                     Console.WriteLine($"Server {server.Name} with IP {ipp_to_shut_down} has been shut down.");
                                     serverFound = true;
+                                    log.WriteLine($"server {computer.Name} turned on {DateTime.Now}");
+                                    
                                     break;
+                                }else{
+                                    Console.WriteLine("Couldn't find server with ip provided");
                                 }
                             }
                         }
-                        Console.WriteLine("Couldn't find server with ip provided");
+                        
                         break;
                     case 8: 
                         Console.WriteLine("Write IP of computer you want to ping: ");
@@ -270,7 +198,7 @@ public class Program
                 } 
             }
         }
-    }                          //end of class menu
+    }                        //end of class menu
     
     static void DisplayComputers(Computer[]net){
         Console.WriteLine("Devices in net: ");
@@ -320,4 +248,10 @@ public class Program
             Console.WriteLine("connection couldn't be established, try again");
         }
     }          //end of class pinging
+
+    public static void seeLog(){
+        log.Flush();
+        Console.WriteLine("log saved to log.txt");
+    }
+    
 }
