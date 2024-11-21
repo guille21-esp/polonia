@@ -12,7 +12,8 @@ public class Program
 
     public static void Main()
     {
-        log= File.CreateText("log.txt");
+        log= new StreamWriter("log.txt", true);
+
         Server server= new Server();     //creating server
         server.BiosName= "DHCP";
         server.IpAddress= "255.255.255.255";
@@ -27,10 +28,8 @@ public class Program
         }
 
         
-        
-        
         Menu();
-        log.Close();
+        log.Close();   //closing log
     }                    //end of main
     
     static string randomIP()
@@ -83,9 +82,41 @@ public class Program
             if(int.TryParse(Console.ReadLine(), out int option)){
         
                 switch(option){
-                    case 1:
-                        Console.WriteLine("Not implemented yet");
-                        log.WriteLine("server shut down");  //{DateTime.Now}
+                    case 1:   
+                        
+                        Console.WriteLine("Available servers: ");
+                        bool serversAvailable=false;
+                        foreach(var computer in net){
+                            if(computer is Server && computer.IpAddress == null){
+                                Console.WriteLine(computer.Name);
+                                serversAvailable=true;
+                            }
+                        }
+
+                        if(!serversAvailable){
+                            Console.WriteLine("All servers are turned on");
+                            break;
+                        }
+
+                        Console.WriteLine("Which server do you want to turn on?");
+                        string server_turned_on = Console.ReadLine();
+                        bool server_found=false;
+
+                        foreach(var computer in net){
+                            if(server_turned_on == computer.Name && computer is Server){
+                                computer.StartComputer(randomIP());
+                                Console.WriteLine($"Server {computer.Name} was turned on");
+                                log.WriteLine($"[{DateTime.Now}] Server {computer.Name} was turned on with ip {computer.IpAddress}");
+                                server_found=true;
+                                break;
+                            }
+                        }
+
+                        if(!server_found){
+                            Console.WriteLine("No server matches the name");
+                        }
+                        //Console.WriteLine("Not implemented yet");
+                        //log.WriteLine("server turned on");  //{DateTime.Now}
                         break;
                     case 2:
                         int cont_comp=0;
@@ -176,7 +207,7 @@ public class Program
                                     server.ShutDownComputer(ipp_to_shut_down); 
                                     Console.WriteLine($"Server {server.Name} with IP {ipp_to_shut_down} has been shut down.");
                                     serverFound = true;
-                                    log.WriteLine($"server {computer.Name} turned on {DateTime.Now}");
+                                    log.WriteLine($"[{DateTime.Now}] Server {server.Name} was turned off");
                                     
                                     break;
                                 }else{
@@ -252,6 +283,15 @@ public class Program
     public static void seeLog(){
         log.Flush();
         Console.WriteLine("log saved to log.txt");
+
+        try{
+            string[] logContents = File.ReadAllLines("log.txt");
+            foreach(var line in logContents){
+                Console.WriteLine(line);
+            }
+        }catch{
+            Console.WriteLine("error");
+        }
     }
     
 }

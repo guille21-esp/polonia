@@ -1,1 +1,7 @@
 server server_one turned on 11/20/2024 6:13:18 PM
+server server_one turned on 11/20/2024 6:30:25 PM
+server shut down
+server shut down
+server server_one turned on 11/21/2024 1:36:52 AM
+[11/21/2024 1:42:06 AM] Server server_one was turned off
+[11/21/2024 1:42:22 AM] Server server_one was turned on with ip 67.63.193.72
