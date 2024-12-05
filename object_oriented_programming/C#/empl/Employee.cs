@@ -53,6 +53,18 @@ class Employee
     public Employee() { }
 }
 
+public class Manager : Employee{
+
+    public void Hire(int id, string name, int salary, int month, int year, string dep){
+        new_id= employees.Count+1;
+        Employee emp = new Employee{new_id, name, dep};
+        Incomes inc = new Incomes{Id, month, year, salary};
+        employees.Add(emp);
+        Incomes.Add(inc);
+
+        Console.WriteLine($"emp.Name" was hired);
+    }
+}
 class Incomes
 {
     
