@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 class ReadCsv
 {
@@ -73,12 +74,45 @@ class Incomes
     public Incomes() { }
 }
 
+
 class Program
 {
+    static void AverageIncome(string logFilePath){
+        List<string[]> logData= ReadCsv.ReadCsvFile(logFilePath);
+
+        var salaries = logData.Select(row => new
+        {
+            Name=row[0],
+            Income = int.Parse(row[4]),
+            Department = row[3]
+        });
+
+        var averageSalaries = salaries.GroupBy(s => s.Name).Select(g => new
+        {
+            Name = g.Key,
+            AverageSalary = g.Average(s => s.Income)
+        }).OrderByDescending(s => s.AverageSalary);
+
+        Console.WriteLine("Ranking of employees by salary: ");
+        foreach(var data in averageSalaries){
+            Console.WriteLine($"Name: {data.Name}, Average income: {data.AverageSalary}");
+        }
+
+        var averageByDepartment = salaries.GroupBy(d => d.Department).Select(g => new{
+            Department = g.Key,
+            AverageSalary = Math.Round(g.Average(s => s.Income), 2)
+        }).OrderByDescending(d => d.AverageSalary);
+
+        Console.WriteLine(" ");
+        Console.WriteLine("Average salary by department:");
+        foreach(var departmentData in averageByDepartment){
+            Console.WriteLine($"Department: {departmentData.Department}, Average: {departmentData.AverageSalary}");
+        }
+    }
     static StreamWriter log;
     static void Main()
     {
-        log= new StreamWriter("log.csv", true);
+        log= new StreamWriter("log.csv", false);
         // Create a list to store Employee objects
         List<Employee> employees = new List<Employee>();
         
@@ -142,7 +176,14 @@ class Program
             }
         }
         Console.WriteLine(cont);
+
         log.Flush();
+
+        string logFilePath = "log.csv";
+
+        AverageIncome(logFilePath);
+
+        
     }
 }
 
