@@ -87,3 +87,29 @@ plt.ylabel('True Shooting Average (TS%)', fontsize=14)
 plt.show()
 
 """True shooting is a statistic that takes all shots a player takes, wheighs their value (1/2/3 points) and tells you how efficient that player is. In this graph, we can see that average true shooting has been going up season by season, as players get better and the game evolves."""
+
+import pandas as pd
+import matplotlib.pyplot as plt
+
+bball = pd.read_csv('all_seasons.csv')
+
+bball['ts_pct'] = pd.to_numeric(bball['ts_pct'], errors='coerce')
+bball['age'] = pd.to_numeric(bball['age'], errors='coerce')
+
+bball_filtered = bball[df['age'] <= 38]
+
+age_avg_ts = bball_filtered.groupby('age').agg({'ts_pct': 'mean'}).reset_index()
+
+plt.figure(figsize=(10, 6))
+plt.plot(age_avg_ts['age'], age_avg_ts['ts_pct'], marker='o', linestyle='-', color='blue')
+
+plt.xticks(ticks=range(18, 39))
+
+plt.title('Average True Shooting Percentage by Age (Up to 38 Years Old)')
+plt.xlabel('Age')
+plt.ylabel('Average True Shooting Percentage')
+plt.grid(True)
+
+plt.show()
+
+"""This graph show correlation between age and shooting efficiency. We can see that efficiency starts low, when players are young, because they are still developing. When they reach their prime (26-32 years old), the efficiency peaks. Then as they get older and their body slows down, efficiency goes down again."""
