@@ -1,4 +1,3 @@
-// libcomp.cpp
 #include "libcomp.h"
 #include <iostream>
 

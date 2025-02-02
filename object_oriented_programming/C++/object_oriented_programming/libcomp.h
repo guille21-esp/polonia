@@ -1,4 +1,3 @@
-// libcomp.h
 #ifndef LIBCOMP_H
 #define LIBCOMP_H
 

@@ -1,4 +1,3 @@
-// main.cpp
 #include "libcomp.h"
 #include <iostream>
 #include <vector>
